@@ -1,5 +1,8 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, Card } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckIcon from "@mui/icons-material/Check";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -9,16 +12,8 @@ import {
   updateTodo,
 } from "../redux/todoSlice";
 
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import CheckIcon from "@mui/icons-material/Check";
-import { Card } from "@mui/material";
-
 const NewTodo = () => {
   const [inputValue, setInputValue] = useState("");
-  const [editable, setEditable] = useState(false);
-
-  // eslint-disable-next-line no-unused-vars
   const [isEditing, setIsEditing] = useState(null);
   const [editText, setEditText] = useState("");
 
@@ -39,6 +34,7 @@ const NewTodo = () => {
       setEditText("");
     }
   };
+
   return (
     <div
       style={{
@@ -67,10 +63,7 @@ const NewTodo = () => {
           size="small"
           disabled={!inputValue.trim()}
           startIcon={<AddIcon />}
-          sx={{
-            textTransform: "capitalize",
-            paddingRight: "10px",
-          }}
+          sx={{ textTransform: "capitalize", paddingRight: "10px" }}
           onClick={createTodo}
         >
           add item
@@ -78,61 +71,69 @@ const NewTodo = () => {
       </Box>
 
       <div style={{ width: "100%", marginTop: "80px" }}>
-        {todos.map((todo) => {
-          return (
-            <Card className="todo" key={todo.id}>
-              {editable ? (
-                <TextField
-                  id="standard-basic-edit"
-                  variant="standard"
-                  size="small"
-                  onChange={(e) => setEditText(e.target.value)}
-                  sx={{ flexGrow: 1 }}
-                  value={editText}
-                />
-              ) : (
-                <span
-                  style={{
-                    textDecoration: todo.completed ? "line-through" : "none",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => dispatch(toggleTodo(todo.id))}
-                >
-                  {todo.text}
-                </span>
-              )}
+        {todos.map((todo) => (
+          <Card
+            className="todo"
+            key={todo.id}
+            sx={{
+              padding: 2,
+              marginBottom: 2,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            {isEditing === todo.id ? (
+              <TextField
+                variant="standard"
+                size="small"
+                onChange={(e) => setEditText(e.target.value)}
+                sx={{ flexGrow: 1 }}
+                value={editText}
+              />
+            ) : (
+              <span
+                style={{
+                  textDecoration: todo.completed ? "line-through" : "none",
+                  cursor: "pointer",
+                  flexGrow: 1,
+                }}
+                onClick={() => dispatch(toggleTodo(todo.id))}
+              >
+                {todo.text}
+              </span>
+            )}
 
-              <div>
-                <Button
-                  sx={{ minWidth: "0px" }}
-                  onClick={() => dispatch(deleteTodo(todo.id))}
-                  color="error"
-                >
-                  <DeleteIcon />
+            <div>
+              <Button
+                sx={{ minWidth: "0px" }}
+                onClick={() => dispatch(deleteTodo(todo.id))}
+                color="error"
+              >
+                <DeleteIcon />
+              </Button>
+
+              {isEditing === todo.id ? (
+                <Button sx={{ minWidth: "0px" }}>
+                  <CheckIcon
+                    onClick={() => {
+                      handleUpdateTodo(todo.id);
+                    }}
+                  />
                 </Button>
-                {editable ? (
-                  <Button sx={{ minWidth: "0px" }}>
-                    <CheckIcon
-                      onClick={() => {
-                        handleUpdateTodo(todo.id);
-                        setEditable(false);
-                      }}
-                    />
-                  </Button>
-                ) : (
-                  <Button sx={{ minWidth: "0px" }}>
-                    <EditIcon
-                      onClick={() => {
-                        setIsEditing(todo.id) || setEditText(todo.text),
-                          setEditable(true);
-                      }}
-                    />
-                  </Button>
-                )}
-              </div>
-            </Card>
-          );
-        })}
+              ) : (
+                <Button sx={{ minWidth: "0px" }}>
+                  <EditIcon
+                    onClick={() => {
+                      setIsEditing(todo.id);
+                      setEditText(todo.text);
+                    }}
+                  />
+                </Button>
+              )}
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );
